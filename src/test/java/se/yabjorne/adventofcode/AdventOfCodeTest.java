@@ -9,8 +9,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.util.Arrays;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public class AdventOfCodeTest {
 
@@ -18,7 +17,7 @@ public class AdventOfCodeTest {
     public void testDay1SumAll() throws IOException {
         int[] integers = getTestDataAsInt("input.txt");
 
-        assertEquals(590, AdventOfCode.day1_getTotalSum(integers));
+        assertEquals(590, Day1.getTotalSum(integers));
     }
 
     private int[] getTestDataAsInt(String filename) throws IOException {
@@ -36,8 +35,8 @@ public class AdventOfCodeTest {
 
     @Test
     public void testDay1ChronalCalibration() throws IOException {
-        assertEquals(10, AdventOfCode.day1_ChronalCalibration(new int[]{3, 3, 4, -2, -4}));
-        assertEquals(83445, AdventOfCode.day1_ChronalCalibration(getTestDataAsInt("input.txt")));
+        assertEquals(10, Day1.chronalCalibration(new int[]{3, 3, 4, -2, -4}));
+        assertEquals(83445, Day1.chronalCalibration(getTestDataAsInt("input.txt")));
     }
 
     @Test
@@ -50,9 +49,9 @@ public class AdventOfCodeTest {
         //abcdee contains two e.
         //ababab contains three a and three b, but it only counts once.
 
-        assertEquals(12, AdventOfCode.day2InventoryManagementSystem(
+        assertEquals(12, Day2.inventoryManagementSystem(
                 new String[]{"abcdef", "bababc", "abbcde", "abcccd", "aabcdd", "abcdee", "ababab"}));
-        assertEquals(5880, AdventOfCode.day2InventoryManagementSystem(
+        assertEquals(5880, Day2.inventoryManagementSystem(
                 getTestDataAsString("input_day2.txt")));
     }
 
@@ -66,7 +65,7 @@ public class AdventOfCodeTest {
         //abcdee contains two e.
         //ababab contains three a and three b, but it only counts once.
 
-        assertEquals("fgij", AdventOfCode.day2DifferByOneChar(
+        assertEquals("fgij", Day2.differByOneChar(
                 new String[]{"abcde",
                         "fghij",
                         "klmno",
@@ -74,7 +73,7 @@ public class AdventOfCodeTest {
                         "fguij",
                         "axcye",
                         "wvxyz"}));
-        assertEquals("tiwcdpbseqhxryfmgkvjujvza", AdventOfCode.day2DifferByOneChar(
+        assertEquals("tiwcdpbseqhxryfmgkvjujvza", Day2.differByOneChar(
                 getTestDataAsString("input_day2.txt")));
     }
 
@@ -95,15 +94,48 @@ public class AdventOfCodeTest {
         //...........
         //...........
 
-        assertEquals(4, AdventOfCode.day3FindOverlapClaimAreas(
+        assertEquals(4, Day3.findOverlapClaimAreas(
                 new String[]{
                         "#1 @ 1,3: 4x4",
                         "#2 @ 3,1: 4x4",
                         "#3 @ 5,5: 2x2"
                 }
         ));
-        assertEquals(100595, AdventOfCode.day3FindOverlapClaimAreas(
+        assertEquals(100595, Day3.findOverlapClaimAreas(
                 getTestDataAsString("input_day3.txt")
         ));
     }
+
+    @Test
+    public void testDay3ClaimsFindNoOverlap() throws IOException {
+        // A claim like #123 @ 3,2: 5x4 means that claim ID 123 specifies a rectangle
+        // 3 inches from the left edge,
+        // 2 inches from the top edge,
+        // 5 inches wide, and 4 inches tall.
+
+        //...........
+        //...........
+        //...#####...
+        //...#####...
+        //...#####...
+        //...#####...
+        //...........
+        //...........
+        //...........
+
+        Integer[] result = new Integer[1];
+        result[0] = 3;
+        assertArrayEquals(result, Day3.findClaimWhichDoesntOverlap(
+                new String[]{
+                        "#1 @ 1,3: 4x4",
+                        "#2 @ 3,1: 4x4",
+                        "#3 @ 5,5: 2x2"
+                }
+        ));
+        result[0] = 415;
+        assertArrayEquals(result, Day3.findClaimWhichDoesntOverlap(
+                getTestDataAsString("input_day3.txt")
+        ));
+    }
+
 }
