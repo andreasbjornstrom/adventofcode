@@ -2,7 +2,6 @@ package se.yabjorne.adventofcode;
 
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
-import se.yabjorne.adventofcode.AdventOfCode;
 
 import java.io.File;
 import java.io.IOException;
@@ -81,6 +80,21 @@ public class AdventOfCodeTest {
 
     @Test
     public void testDay3Claims() throws IOException {
+        // A claim like #123 @ 3,2: 5x4 means that claim ID 123 specifies a rectangle
+        // 3 inches from the left edge,
+        // 2 inches from the top edge,
+        // 5 inches wide, and 4 inches tall.
+
+        //...........
+        //...........
+        //...#####...
+        //...#####...
+        //...#####...
+        //...#####...
+        //...........
+        //...........
+        //...........
+
         assertEquals(4, AdventOfCode.day3FindOverlapClaimAreas(
                 new String[]{
                         "#1 @ 1,3: 4x4",
@@ -88,7 +102,7 @@ public class AdventOfCodeTest {
                         "#3 @ 5,5: 2x2"
                 }
         ));
-        assertEquals(4, AdventOfCode.day3FindOverlapClaimAreas(
+        assertEquals(100595, AdventOfCode.day3FindOverlapClaimAreas(
                 getTestDataAsString("input_day3.txt")
         ));
     }

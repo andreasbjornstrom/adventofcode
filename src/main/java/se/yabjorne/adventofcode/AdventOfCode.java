@@ -80,42 +80,39 @@ public class AdventOfCode {
             int startPointFromTop = getStartPointFromTop(string);
             int squareSizeLeft = getSquareSizeLeft(string);
             int squareSizeDown = getSquareSizeDown(string);
-            maxWidth = startPointFromLeftEdge + squareSizeLeft;
-            maxHeight = startPointFromTop + squareSizeDown;
+            // +10 not really needed. got some bug here. but gives large enough area to do the calculation for.
+            maxWidth = startPointFromLeftEdge + squareSizeLeft +10 > maxWidth ? startPointFromLeftEdge + squareSizeLeft +10 : maxWidth;
+            maxHeight = startPointFromTop + squareSizeDown +10 > maxHeight ? startPointFromTop + squareSizeDown +10: maxHeight;
         }
 
         int[][] area = new int[maxWidth][maxHeight];
-
+        System.out.printf("Area: %dx%d\n", maxWidth, maxHeight);
         for (String string : strings) {
-            for (int i = getStartPointFromLeftEdge(string) -1; i < getSquareSizeLeft(string); i++) {
-                area[getStartPointFromTop(string)][i] += 1;
-            }
             System.out.println(string);
-            getCoveredArea(area);
-            for (int i = getStartPointFromTop(string); i < getSquareSizeDown(string); i++) {
-                area[i][getSquareSizeDown(string)] += 1;
+            getCoveredArea(area, false);
+            for (int x = getStartPointFromLeftEdge(string); x < getStartPointFromLeftEdge(string) + getSquareSizeLeft(string); x++) {
+                for (int y = getStartPointFromTop(string); y < getStartPointFromTop(string) + getSquareSizeDown(string); y++) {
+                    area[y][x] += 1;
+                }
+                getCoveredArea(area, false);
             }
-            System.out.println(string);
-            getCoveredArea(area);
-
         }
 
-        return getCoveredArea(area);
+        return getCoveredArea(area, false);
     }
 
-    private static int getCoveredArea(int[][] area) {
+    private static int getCoveredArea(int[][] area, boolean debug) {
         int coveredArea = 0;
         for (int[] ints : area) {
-            System.out.print("/");
             for (int anInt : ints) {
                 if (anInt > 1) {
                     coveredArea += 1;
-                    System.out.print("X");
+                    if (debug) System.out.print("X");
                 } else {
-                    System.out.print(anInt);
+                    if (debug) System.out.print(anInt);
                 }
             }
-            System.out.println("");
+            if (debug) System.out.println("");
         }
         return coveredArea;
     }
