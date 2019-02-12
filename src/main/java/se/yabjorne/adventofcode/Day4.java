@@ -2,16 +2,17 @@ package se.yabjorne.adventofcode;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Day4 {
     private List<GuardShift> logs = new ArrayList<>();
+    private Comparator<String> comparator = (s, t1) ->
+            s.substring(0, 17).equals(t1.substring(0, 17))
+                    ? s.compareTo(t1) * -1 : s.compareTo(t1);
 
-    public Day4(String[] logentries) {
+    Day4(String[] logentries) {
         parse(logentries);
     }
 
@@ -38,7 +39,8 @@ public class Day4 {
         // Because all asleep / awake times are during the midnight hour (00:00 - 00:59),only the minute portion (00 - 59)
         // is relevant for those events.
         GuardShift guardShift = null;
-        for (String logentry : logentries) {
+        List<String> sorted = Stream.of(logentries).sorted(comparator).collect(Collectors.toList());
+        for (String logentry : sorted) {
             LocalDateTime date = LocalDateTime.parse(logentry.substring(1, 17), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
             GuardAction action = GuardAction.of(logentry);
             if (action.equals(GuardAction.BEGINS_SHIFT)) {
@@ -54,35 +56,57 @@ public class Day4 {
 
     }
 
-    public int findMinutWhenGuardSleepsTheMost(int guardId) {
-        Map<Integer, Integer> minuteWithCount = new HashMap<>();
+    int findMinuteWhenGuardSleepsTheMost(int guardId) {
+        Map<String, Integer> minutesWithCount = new HashMap<>();
 
         logs.stream().filter(gs -> gs.getGuardId() == guardId)
                 .map(GuardShift::getSleepingMinues)
                 .flatMap(List::stream)
-                .forEach(anInt -> minuteWithCount.compute(anInt, (k, v) -> (v != null ? v : 0) + 1));
+                .forEach(anInt -> minutesWithCount.compute(anInt, (k, v) -> (v != null ? v : 0) + 1));
 
         int minuteWithMostSleep = -1;
         int amountOfSleep = -1;
-        for (Integer minute = 0; minute < 59; minute++) {
-            if (minuteWithCount.getOrDefault(minute, 0) > amountOfSleep) {
-                minuteWithMostSleep = minute;
-                amountOfSleep = minuteWithCount.getOrDefault(minute, 0);
+        for (Map.Entry<String, Integer> minuteWithCount : minutesWithCount.entrySet()) {
+            if (minuteWithCount.getValue() > amountOfSleep) {
+                minuteWithMostSleep = Integer.parseInt(minuteWithCount.getKey());
+                amountOfSleep = minuteWithCount.getValue();
             }
         }
         return minuteWithMostSleep;
     }
 
-    public int findGuardThatSleepsTheLeast() {
-        Map<List<Integer>, List<GuardShift>> bySleeping = logs.stream().collect(Collectors.groupingBy(GuardShift::getSleepingMinues));
-        int guardId = 0;
-        int currentMaxSleeper = 0;
-        for (Map.Entry<List<Integer>, List<GuardShift>> listListEntry : bySleeping.entrySet()) {
-            if (listListEntry.getKey().size() > currentMaxSleeper) {
-                currentMaxSleeper = listListEntry.getKey().size();
-                guardId = listListEntry.getValue().get(0).getGuardId();
+    int findGuardThatSleepsTheMost() {
+        Map<Integer, List<GuardShift>> byGuardId = logs.stream().collect(Collectors.groupingBy(GuardShift::getGuardId));
+        int guardId = -1;
+        int maxMinOfSleep = -1;
+        for (Map.Entry<Integer, List<GuardShift>> guardWithShifts : byGuardId.entrySet()) {
+            int minuteOfSleep = guardWithShifts.getValue().stream().map(GuardShift::getSleepingMinues).mapToInt(List::size).sum();
+            if (minuteOfSleep > maxMinOfSleep) {
+                maxMinOfSleep = minuteOfSleep;
+                guardId = guardWithShifts.getKey();
             }
         }
+        return guardId;
+    }
+
+    int findGuardWhichSleepsTheMostForAnyMinute() {
+        Map<Integer, List<GuardShift>> byGuardId = logs.stream().collect(Collectors.groupingBy(GuardShift::getGuardId));
+        int guardId = -1;
+        int maxMinOfSleep = -1;
+        for (Map.Entry<Integer, List<GuardShift>> guardWithShifts : byGuardId.entrySet()) {
+            String minuteWithMostOccurences = String.valueOf(findMinuteWhenGuardSleepsTheMost(guardWithShifts.getKey()));
+            long minutesOfSleep = guardWithShifts.getValue()
+                    .stream()
+                    .map(GuardShift::getSleepingMinues)
+                    .flatMap(List::stream)
+                    .filter(m -> m.equals(minuteWithMostOccurences))
+                    .count();
+            if (minutesOfSleep > maxMinOfSleep) {
+                maxMinOfSleep = (int) minutesOfSleep;
+                guardId = guardWithShifts.getKey();
+            }
+        }
+
         return guardId;
     }
 
@@ -96,7 +120,7 @@ public class Day4 {
 
     private static class GuardShift {
 
-        final List<Integer> sleepingMinues = new ArrayList<>();
+        final List<String> sleepingMinues = new ArrayList<>();
         private final Integer guardId;
         private int lastActionMinute;
         private GuardAction lastAction;
@@ -107,33 +131,37 @@ public class Day4 {
                     date.getMinute() : 0;
         }
 
-        public static GuardShift of(Integer guardId, LocalDateTime date) {
+        static GuardShift of(Integer guardId, LocalDateTime date) {
             return new GuardShift(guardId, date);
         }
 
-        public Integer getGuardId() {
+        Integer getGuardId() {
             return guardId;
         }
 
-        public List<Integer> getSleepingMinues() {
+        List<String> getSleepingMinues() {
             return sleepingMinues;
         }
 
-        public void addEntry(LocalDateTime date, GuardAction action) {
-            if (date.getHour() != 0)
+        void addEntry(LocalDateTime date, GuardAction action) {
+            if (action.equals(GuardAction.WAKES_UP) && !lastAction.equals(GuardAction.FALL_ASLEEP))
+                throw new IllegalStateException();
+            if (date.getHour() != 0) {
+                System.out.println("ignoring " + date + action);
                 return;
+            }
             if (action.equals(GuardAction.WAKES_UP))
                 for (int minute = lastActionMinute; minute < date.getMinute(); minute++) {
-                    sleepingMinues.add(minute);
+                    sleepingMinues.add(String.valueOf(minute));
                 }
             lastActionMinute = date.getMinute();
             lastAction = action;
         }
 
-        public void endShift() {
-            if (lastAction.equals(GuardAction.FALL_ASLEEP))
-                for (int minute = lastActionMinute; minute < 59; minute++) {
-                    sleepingMinues.add(minute);
+        void endShift() {
+            if (GuardAction.FALL_ASLEEP.equals(lastAction))
+                for (int minute = lastActionMinute; minute <= 59; minute++) {
+                    sleepingMinues.add(String.valueOf(minute));
                 }
         }
     }

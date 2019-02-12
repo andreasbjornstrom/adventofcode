@@ -139,7 +139,7 @@ public class AdventOfCodeTest {
     }
 
     @Test
-    public void testDay4GuardDutyTimeslots() {
+    public void testDay4GuardDutyTimeslots() throws IOException {
         // [1518-11-01 00:00] Guard #10 begins shift
         //[1518-11-01 00:05] falls asleep
         //[1518-11-01 00:25] wakes up
@@ -177,8 +177,18 @@ public class AdventOfCodeTest {
                         "[1518-11-05 00:45] falls asleep",
                         "[1518-11-05 00:55] wakes up"
                 });
-        assertEquals(10, day4.findGuardThatSleepsTheLeast());
-        assertEquals(24, day4.findMinutWhenGuardSleepsTheMost(10));
-    }
+        assertEquals(10, day4.findGuardThatSleepsTheMost());
+        assertEquals(24, day4.findMinuteWhenGuardSleepsTheMost(10));
+        assertEquals(99, day4.findGuardWhichSleepsTheMostForAnyMinute());
 
+        Day4 day4FullData = new Day4(getTestDataAsString("input_day4.txt"));
+        assertEquals(1217, day4FullData.findGuardThatSleepsTheMost());
+        assertEquals(40, day4FullData.findMinuteWhenGuardSleepsTheMost(1217));
+        assertEquals(48680, 1217*40);
+
+        int guardId = day4FullData.findGuardWhichSleepsTheMostForAnyMinute();
+        assertEquals(34, day4FullData.findMinuteWhenGuardSleepsTheMost(guardId));
+        assertEquals(94826, 34*guardId);
+
+    }
 }
