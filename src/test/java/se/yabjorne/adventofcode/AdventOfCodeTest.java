@@ -21,16 +21,24 @@ public class AdventOfCodeTest {
     }
 
     private int[] getTestDataAsInt(String filename) throws IOException {
-        String[] lines = getTestDataAsString(filename);
+        String[] lines = getTestDataAsStrings(filename);
         return Arrays.stream(lines).mapToInt(Integer::parseInt).toArray();
     }
 
     @NotNull
-    private String[] getTestDataAsString(String filename) throws IOException {
+    private String[] getTestDataAsStrings(String filename) throws IOException {
         URL resource = Thread.currentThread().getContextClassLoader().getResource(filename);
         assertNotNull(resource);
         File inputFile = new File(resource.getPath());
         return new String(Files.readAllBytes(inputFile.toPath())).split("\\n");
+    }
+
+    @NotNull
+    private String getTestDataAsString(String filename) throws IOException {
+        URL resource = Thread.currentThread().getContextClassLoader().getResource(filename);
+        assertNotNull(resource);
+        File inputFile = new File(resource.getPath());
+        return new String(Files.readAllBytes(inputFile.toPath())).trim();
     }
 
     @Test
@@ -52,7 +60,7 @@ public class AdventOfCodeTest {
         assertEquals(12, Day2.inventoryManagementSystem(
                 new String[]{"abcdef", "bababc", "abbcde", "abcccd", "aabcdd", "abcdee", "ababab"}));
         assertEquals(5880, Day2.inventoryManagementSystem(
-                getTestDataAsString("input_day2.txt")));
+                getTestDataAsStrings("input_day2.txt")));
     }
 
     @Test
@@ -74,7 +82,7 @@ public class AdventOfCodeTest {
                         "axcye",
                         "wvxyz"}));
         assertEquals("tiwcdpbseqhxryfmgkvjujvza", Day2.differByOneChar(
-                getTestDataAsString("input_day2.txt")));
+                getTestDataAsStrings("input_day2.txt")));
     }
 
     @Test
@@ -102,7 +110,7 @@ public class AdventOfCodeTest {
                 }
         ));
         assertEquals(100595, Day3.findOverlapClaimAreas(
-                getTestDataAsString("input_day3.txt")
+                getTestDataAsStrings("input_day3.txt")
         ));
     }
 
@@ -134,7 +142,7 @@ public class AdventOfCodeTest {
         ));
         result[0] = 415;
         assertArrayEquals(result, Day3.findClaimWhichDoesntOverlap(
-                getTestDataAsString("input_day3.txt")
+                getTestDataAsStrings("input_day3.txt")
         ));
     }
 
@@ -181,14 +189,38 @@ public class AdventOfCodeTest {
         assertEquals(24, day4.findMinuteWhenGuardSleepsTheMost(10));
         assertEquals(99, day4.findGuardWhichSleepsTheMostForAnyMinute());
 
-        Day4 day4FullData = new Day4(getTestDataAsString("input_day4.txt"));
+        Day4 day4FullData = new Day4(getTestDataAsStrings("input_day4.txt"));
         assertEquals(1217, day4FullData.findGuardThatSleepsTheMost());
         assertEquals(40, day4FullData.findMinuteWhenGuardSleepsTheMost(1217));
-        assertEquals(48680, 1217*40);
+        assertEquals(48680, 1217 * 40);
 
         int guardId = day4FullData.findGuardWhichSleepsTheMostForAnyMinute();
         assertEquals(34, day4FullData.findMinuteWhenGuardSleepsTheMost(guardId));
-        assertEquals(94826, 34*guardId);
+        assertEquals(94826, 34 * guardId);
+    }
 
+    @Test
+    public void day5AlchemicalReduction2() throws IOException {
+        // dabAcCaCBAcCcaDA  The first 'cC' is removed.
+        //dabAaCBAcCcaDA    This creates 'Aa', which is removed.
+        //dabCBAcCcaDA      Either 'cC' or 'Cc' are removed (the result is the same).
+        //dabCBAcaDA        No further actions can be taken.
+        String polymer = "dabAcCaCBAcCcaDA";
+
+        assertEquals("dabC", Day5.polymerReduction("dabC"));
+        assertEquals("", Day5.polymerReduction("aA"));
+        assertEquals("Cxxxx", Day5.polymerReduction("aACxxxx"));
+        assertEquals("C", Day5.polymerReduction("aAC"));
+        assertEquals("C", Day5.polymerReduction("aAbBC"));
+        assertEquals("xx", Day5.polymerReduction("aAcbBCxx"));
+        assertEquals("J", Day5.polymerReduction("JoONn"));
+
+        assertEquals("dabCBAcaDA", Day5.polymerReduction(polymer));
+        //JVvoiICIicdDOmnNMNZzn
+        assertEquals("J", Day5.polymerReduction(getTestDataAsString("input_day5.txt").substring(129, 150)));
+        assertEquals(11364, Day5.polymerReduction(getTestDataAsString("input_day5.txt")).length());
+
+        assertEquals(4, Day5.polymerMaxReduction("dabCBAcaDA"));
+        assertEquals(4212, Day5.polymerMaxReduction(getTestDataAsString("input_day5.txt")));
     }
 }
