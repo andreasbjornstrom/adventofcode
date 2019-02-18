@@ -3,11 +3,14 @@ package se.yabjorne.adventofcode;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -222,5 +225,34 @@ public class AdventOfCodeTest {
 
         assertEquals(4, Day5.polymerMaxReduction("dabCBAcaDA"));
         assertEquals(4212, Day5.polymerMaxReduction(getTestDataAsString("input_day5.txt")));
+    }
+
+    @Test
+    public void day6coordinateswtf() throws IOException {
+        Day6 smallArea = Day6.of(new String[]{
+                "1, 1",
+                "1, 6",
+                "8, 3",
+                "3, 4",
+                "5, 5",
+                "8, 9"
+        });
+        Map<Character, Point> coordinates = smallArea.getCoordinates();
+        assertEquals(6, coordinates.size());
+        assertEquals(5, (int) coordinates.get('A').distance(coordinates.get('B')));
+        assertTrue(smallArea.isInifinite(coordinates.get('A')));
+        assertTrue(smallArea.isInifinite(coordinates.get('B')));
+        assertTrue(smallArea.isInifinite(coordinates.get('C')));
+        assertFalse(smallArea.isInifinite(coordinates.get('D')));
+        assertFalse(smallArea.isInifinite(coordinates.get('E')));
+        assertTrue(smallArea.isInifinite(coordinates.get('F')));
+
+        assertEquals(9, smallArea.getNumberOfFieldsClosestTo(coordinates.get('D')));
+        assertEquals(17, smallArea.getNumberOfFieldsClosestTo(coordinates.get('E')));
+        assertEquals(17, smallArea.getLargestArea());
+
+        Day6 largeArea = Day6.of(getTestDataAsStrings("input_day6.txt"));
+        assertEquals(4215, largeArea.getLargestArea());
+
     }
 }
