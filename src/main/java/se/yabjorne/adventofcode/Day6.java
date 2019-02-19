@@ -3,7 +3,6 @@ package se.yabjorne.adventofcode;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -111,9 +110,25 @@ public class Day6 {
     }
 
     public int getLargestArea() {
-        Optional<Point> result = coordinates.values().stream()
+        Optional<Point> result = coordinates.values().parallelStream()
                 .filter(p -> !isInifinite(p))
                 .reduce((p1, p2) -> getNumberOfFieldsClosestTo(p1) > getNumberOfFieldsClosestTo(p2) ? p1 : p2);
         return getNumberOfFieldsClosestTo(result.orElseThrow(IllegalStateException::new));
+    }
+
+    public int getDistanceToallCoordinatesFromPoint(Point point) {
+        return coordinates.values().stream().map(p -> manhattanDistance(p, point)).reduce(0, Integer::sum);
+    }
+
+    public int getSizeOfAreaWhereAllCoordinatesHasMaxDistance(int maxDistance) {
+        char[][] field = populateField();
+        int total = 0;
+        for (int y = 0; y < field.length; y++) {
+            for (int x = 0; x < field[y].length; x++) {
+                if (maxDistance >= getDistanceToallCoordinatesFromPoint(new Point(x, y)))
+                    total++;
+            }
+        }
+        return total;
     }
 }

@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.*;
@@ -250,9 +249,12 @@ public class AdventOfCodeTest {
         assertEquals(9, smallArea.getNumberOfFieldsClosestTo(coordinates.get('D')));
         assertEquals(17, smallArea.getNumberOfFieldsClosestTo(coordinates.get('E')));
         assertEquals(17, smallArea.getLargestArea());
+        assertEquals(30, smallArea.getDistanceToallCoordinatesFromPoint(new Point(4, 3)));
+        assertEquals(16, smallArea.getSizeOfAreaWhereAllCoordinatesHasMaxDistance(31));
 
         Day6 largeArea = Day6.of(getTestDataAsStrings("input_day6.txt"));
         assertEquals(4215, largeArea.getLargestArea());
+        assertEquals(40376, largeArea.getSizeOfAreaWhereAllCoordinatesHasMaxDistance(10000 - 1));
 
     }
 }
